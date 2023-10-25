@@ -70,7 +70,7 @@ bool soma(char* string_line, int linepos){
 
 
 int main(){
-    char string_line = "2+3+5+(9+0)";//string_line will works like the tape
+    char string_line = "2+3+5";//string_line will works like the tape
     int linepos = 0;
     exp(string_line, linepos);
     return 0;
