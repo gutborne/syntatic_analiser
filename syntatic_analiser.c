@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #define ERROR -1
 
+int termo(char* string_line, int linepos);
+int fator(char* string_line, int linepos);
+int soma(char* string_line, int linepos);
+
 /*  This is the grammar of the language
     exp -> termo {soma termo}
     soma -> + | - 
@@ -17,16 +21,33 @@
  * @return true 
  * @return false 
  */
-bool exp(char* string_line, int linepos){
+int Exp(char* string_line, int linepos){
     //string_line[n] will works like the tapehead
-    bool term = termo(string_line[linepos], linepos);//function termo
-    if(term == true){
-        printf("%c", string_line[linepos]);
+    int term = termo(string_line, linepos);//function termo
+    if(term == 1){
+        printf("%c ", string_line[linepos]);
+        return 1;
     }
-    int sum = soma(string_line, linepos+1);
-    if(sum == true){
-        term = termo(string_line[linepos], linepos+2);
+    int sum = soma(string_line, linepos);
+    if(sum == 1){
+        printf("%c ", string_line[linepos]);
+        return 1;
     }
+}
+
+/**
+ * @brief 
+ * 
+ * @param string_line 
+ * @param linepos 
+ * @return int 
+ */
+int soma(char* string_line, int linepos){
+    if(string_line[linepos] == '+' || string_line[linepos] == '-'){
+        return 1;
+    }else{
+        return 0;
+    };
 }
 /**
  * @brief this function will check if the token held by linepos is a term
@@ -34,10 +55,13 @@ bool exp(char* string_line, int linepos){
  * @return true 
  * @return false 
  */
-bool termo(char* string_line, int linepos){
-    bool result = fator(string_line[linepos]);//function fator
-    if(result == true) return true;
-    else return ERROR;
+int termo(char* string_line, int linepos){
+    int result = fator(string_line, linepos);//function fator
+    if(result == 1){
+        return 1;
+    }else{
+        return 0;
+    }
 }
 /**
  * @brief 
@@ -46,32 +70,29 @@ bool termo(char* string_line, int linepos){
  * @return true 
  * @return false 
  */
-bool fator(char* string_line, int linepos){
+int fator(char* string_line, int linepos){
     if(string_line[linepos] == '('){
         while(string_line[linepos] != ')'){
-            exp(string_line, linepos);
+            Exp(string_line, linepos);
             linepos++;
         }
     }else{
-        if(string_line[linepos] > '48' && string_line[linepos] < '57'){
+        if(string_line[linepos] >= 48 && string_line[linepos] <= 57){
             //match occurs with a number and get the next token
-            return true;
+            return 1;
         }
     }
     return ERROR;
 }
 
-bool soma(char* string_line, int linepos){
-    if(string_line[linepos] == '+' || string_line[linepos] == '-'){
-        printf("%c", string_line[linepos]);
-        return true;
-    }else return false;
-}
 
 
 int main(){
-    char string_line = "2+3+5";//string_line will works like the tape
+    char* string_line = "2+3+5+7+9";//string_line will works like the tape
     int linepos = 0;
-    exp(string_line, linepos);
+    while(string_line[linepos] != '\0'){
+       Exp(string_line, linepos);
+       linepos++;
+    }   
     return 0;
 }
