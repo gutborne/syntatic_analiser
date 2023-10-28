@@ -2,96 +2,117 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #define ERROR -1
-
-int termo(char* string_line, int linepos);
-int fator(char* string_line, int linepos);
-int soma(char* string_line, int linepos);
-
 /*  This is the grammar of the language
-    exp -> termo {soma termo}
-    soma -> + | - 
-    termo -> fator {mult fator}
+    exp -> termo {sum term}
+    sum -> + | - 
+    term -> fator {mult factor}
     mult -> *
-    fator -> (exp) | número 
+    factor -> (exp) | number 
  */
+
+int term(char* string_line, int* linepos);
+int factor(char* string_line, int* linepos);
+int sum(char* string_line, int* linepos);
+int mult(char* string_line, int* linepos);
 
 /**
- * @brief this function will start by the first token of the grammar
- * @param string_line 
- * @return true 
- * @return false 
+ * @brief this function will start the grammar analysis by calling the function Exp.
+ * Note that from this point we can derive all the rest of the grammar, thus it
+ * means from Exp we can get 'number' or '*', for example.
+ * @param string_line works like the tape and receive the source code
+ * @param linepos reference to the variable linepos that exists in main()
+ * @return int 
  */
-int Exp(char* string_line, int linepos){
+int Exp(char* string_line, int* linepos){
     //string_line[n] will works like the tapehead
-    int term = termo(string_line, linepos);//function termo
-    if(term == 1){
-        printf("%c ", string_line[linepos]);
+    int t = term(string_line, linepos);//function termo
+    if(t == 1){
+        printf("%c ", string_line[*linepos]);
         return 1;
     }
-    int sum = soma(string_line, linepos);
-    if(sum == 1){
-        printf("%c ", string_line[linepos]);
+    int s = sum(string_line, linepos);
+    if(s == 1){
+        printf("%c ", string_line[*linepos]);
         return 1;
     }
 }
 
 /**
- * @brief 
- * 
+ * @brief This function checks if the current token is a + or -
  * @param string_line 
  * @param linepos 
  * @return int 
  */
-int soma(char* string_line, int linepos){
-    if(string_line[linepos] == '+' || string_line[linepos] == '-'){
-        return 1;
-    }else{
-        return 0;
-    };
-}
-/**
- * @brief this function will check if the token held by linepos is a term
- * @param linepos 
- * @return true 
- * @return false 
- */
-int termo(char* string_line, int linepos){
-    int result = fator(string_line, linepos);//function fator
-    if(result == 1){
+int sum(char* string_line, int* linepos){
+    if(string_line[*linepos] == '+' || string_line[*linepos] == '-'){
         return 1;
     }else{
         return 0;
     }
 }
+
+
 /**
- * @brief 
- * 
+ * @brief this function have the same principle of exp, but it just derives factor.
+ *  and mult. So, from this point we can have a '*' or an (exp), for example. 
+ * @param string_line 
  * @param linepos 
- * @return true 
- * @return false 
+ * @return int 
  */
-int fator(char* string_line, int linepos){
-    if(string_line[linepos] == '('){
-        while(string_line[linepos] != ')'){
+int term(char* string_line, int* linepos){
+    int result = factor(string_line, linepos);//function fator
+    if(result == 1){
+        return 1;
+    }
+    int m = mult(string_line, linepos);
+    if(m == 1){
+        return 1;
+    }
+}
+    
+/**
+ * @brief this function have the same principle of Exp as well, but it just derives 
+ * (exp) and 'num'.
+ * @param string_line 
+ * @param linepos 
+ * @return int 
+ */
+int factor(char* string_line, int* linepos){
+    if(string_line[*linepos] == '('){
+        printf("%c ", string_line[*linepos]);
+        while(string_line[*linepos] != ')'){
+            (*linepos)++;//increments 
             Exp(string_line, linepos);
-            linepos++;
         }
+        printf("%c ", string_line[*linepos]);
     }else{
-        if(string_line[linepos] >= 48 && string_line[linepos] <= 57){
-            //match occurs with a number and get the next token
+        //match occurs with a number and get the next token
+        if(string_line[*linepos] >= 48 && string_line[*linepos] <= 57){
             return 1;
         }
     }
-    return ERROR;
+    return 0;
 }
 
-
+/**
+ * @brief this function test if the current token is '*'.
+ * @param string_line 
+ * @param linepos 
+ * @return int 
+ */
+int mult(char* string_line, int* linepos){
+     if(string_line[*linepos] == '*'){
+        return 1;
+    }else{
+        return 0;
+    }
+}
 
 int main(){
-    char* string_line = "2+3+5+7+9";//string_line will works like the tape
-    int linepos = 0;
+    char* string_line = "(8+9)+(7+4-5*9-1+9)+7+8+0";
+    int linepos = 0;//linepos will work as the tapehead
     while(string_line[linepos] != '\0'){
-       Exp(string_line, linepos);
+       Exp(string_line, &linepos);
        linepos++;
     }   
     return 0;
